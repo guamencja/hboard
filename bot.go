@@ -46,21 +46,24 @@ func reactionAddEvent (s *discordgo.Session, r *discordgo.MessageReactionAdd){
 	if r.Emoji.Name != "🇭" {
 		return
 	}
-	usrs, err := s.MessageReactions(r.ChannelID, r.MessageID, r.Emoji.Name, 100, "", "")
+
+	msg, err := s.ChannelMessage(r.ChannelID, r.MessageID)
 	if err != nil {
 		fmt.Println("lol coś się popsuło")
 		return
 	}
 
 	var contains = false
-	for _, usr := range usrs {
-		fmt.Println(usr.ID == r.UserID)
-		if usr.ID == r.UserID {
-			contains = true
-		}
+	if r.UserID == msg.Author.ID {
+		contains = true
 	}
+
 	if contains {
-		// tutaj bedziemy usuwac reakcje uzytkownika
+		err := s.MessageReactionRemove(r.ChannelID, r.MessageID, r.Emoji.Name, r.UserID)
+		if err != nil {
+			fmt.Println("lol coś się popsuło")
+			return
+		}
 		return
 	}
 
