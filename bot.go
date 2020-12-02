@@ -24,7 +24,9 @@ func main() {
 		fmt.Println("połączenie dostało raka raka, ", err)
 		return
 	}
-	
+
+	dg.AddHandler(reactionAddEvent)
+
 	user, err := dg.User("@me")
 
 	dg.UpdateStatusComplex(discordgo.UpdateStatusData{
@@ -38,4 +40,29 @@ func main() {
 
 	<-make(chan struct{})
 	return
+}
+
+func reactionAddEvent (s *discordgo.Session, r *discordgo.MessageReactionAdd){
+	if r.Emoji.Name != "🇭" {
+		return
+	}
+	usrs, err := s.MessageReactions(r.ChannelID, r.MessageID, r.Emoji.Name, 100, "", "")
+	if err != nil {
+		fmt.Println("lol coś się popsuło")
+		return
+	}
+
+	var contains = false
+	for _, usr := range usrs {
+		fmt.Println(usr.ID == r.UserID)
+		if usr.ID == r.UserID {
+			contains = true
+		}
+	}
+	if contains {
+		// tutaj bedziemy usuwac reakcje uzytkownika
+		return
+	}
+
+	// a tutaj bedziemy kasować czy coś
 }
