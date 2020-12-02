@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/joho/godotenv"
+	"time"
 	"fmt"
 	"os"
 )
@@ -67,5 +68,45 @@ func reactionAddEvent (s *discordgo.Session, r *discordgo.MessageReactionAdd){
 		return
 	}
 
-	// a tutaj bedziemy kasować czy coś
+	channels, err := s.GuildChannels(r.GuildID)
+	if err != nil {
+		fmt.Println("lol coś się popsuło")
+		return
+	}
+
+	var hchannelID = ""
+
+    for _, c := range channels {
+        if c.Type != discordgo.ChannelTypeGuildText {
+            continue
+        }
+
+		if c.Name == "h-board" {
+			hchannelID = c.ID
+		}
+	}
+
+	embed := &discordgo.MessageEmbed{
+		Author: &discordgo.MessageEmbedAuthor{
+			Name: msg.Author.Username+"#"+msg.Author.Discriminator,
+			IconURL: msg.Author.AvatarURL(""),
+		},
+		Title: "1 🇭",
+		Color: 0x00ADD8,
+		Description: msg.Content,
+		Fields: []*discordgo.MessageEmbedField{
+			&discordgo.MessageEmbedField{
+				Name: "Link",
+				Value: "[Skocz ~~z mostu~~ do wiadomości](https://discord.com/channels/"+r.GuildID+"/"+r.ChannelID+"/"+r.MessageID+")",
+			},
+		},
+		Timestamp: time.Now().Format(time.RFC3339),
+	}
+
+	_, err = s.ChannelMessageSendEmbed(hchannelID, embed)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	return
 }
