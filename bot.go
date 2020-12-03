@@ -54,19 +54,22 @@ func reactionAddEvent (s *discordgo.Session, r *discordgo.MessageReactionAdd){
 		return
 	}
 
-	var contains = false
-	if r.UserID == msg.Author.ID {
-		contains = true
+	if os.Getenv("STARSELF") == "FALSE" {
+		var contains = false
+		if r.UserID == msg.Author.ID {
+			contains = true
+		}
+
+		if contains {
+			err := s.MessageReactionRemove(r.ChannelID, r.MessageID, r.Emoji.Name, r.UserID)
+			if err != nil {
+				fmt.Println("lol coś się popsuło")
+				return
+			}
+			return
+		}	
 	}
 
-	if contains {
-		err := s.MessageReactionRemove(r.ChannelID, r.MessageID, r.Emoji.Name, r.UserID)
-		if err != nil {
-			fmt.Println("lol coś się popsuło")
-			return
-		}
-		return
-	}
 
 	channels, err := s.GuildChannels(r.GuildID)
 	if err != nil {
