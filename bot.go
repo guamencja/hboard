@@ -1,11 +1,12 @@
 package main
 
 import (
-	"github.com/bwmarrin/discordgo"
-	"github.com/joho/godotenv"
-	"time"
 	"fmt"
 	"os"
+	"time"
+
+	"github.com/bwmarrin/discordgo"
+	"github.com/joho/godotenv"
 )
 
 func main() {
@@ -15,7 +16,7 @@ func main() {
 		return
 	}
 
-	dg, err := discordgo.New("Bot "+os.Getenv("TOKEN"));
+	dg, err := discordgo.New("Bot " + os.Getenv("TOKEN"))
 	if err != nil {
 		fmt.Println("sesja discordowa dostała raka raka, ", err)
 		return
@@ -37,13 +38,13 @@ func main() {
 		},
 	})
 
-	fmt.Println("Zalogowano jako "+user.Username+"#"+user.Discriminator)
+	fmt.Println("Zalogowano jako " + user.Username + "#" + user.Discriminator)
 
 	<-make(chan struct{})
 	return
 }
 
-func reactionAddEvent (s *discordgo.Session, r *discordgo.MessageReactionAdd){
+func reactionAddEvent(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 	if r.Emoji.Name != "🇭" {
 		return
 	}
@@ -67,9 +68,8 @@ func reactionAddEvent (s *discordgo.Session, r *discordgo.MessageReactionAdd){
 				return
 			}
 			return
-		}	
+		}
 	}
-
 
 	channels, err := s.GuildChannels(r.GuildID)
 	if err != nil {
@@ -77,39 +77,32 @@ func reactionAddEvent (s *discordgo.Session, r *discordgo.MessageReactionAdd){
 		return
 	}
 
-	var hchannelID = ""
-
-    for _, c := range channels {
-        if c.Type != discordgo.ChannelTypeGuildText {
-            continue
-        }
-
-		if c.Name == "h-board" {
-			hchannelID = c.ID
-		}
-	}
-
 	embed := &discordgo.MessageEmbed{
 		Author: &discordgo.MessageEmbedAuthor{
-			Name: msg.Author.Username+"#"+msg.Author.Discriminator,
+			Name:    msg.Author.Username + "#" + msg.Author.Discriminator,
 			IconURL: msg.Author.AvatarURL(""),
 		},
-		Title: "1 🇭",
-		Color: 0x00ADD8,
+		Title:       "1 🇭",
+		Color:       0x00ADD8,
 		Description: msg.Content,
 		Fields: []*discordgo.MessageEmbedField{
 			&discordgo.MessageEmbedField{
-				Name: "Link",
-				Value: "[Skocz ~~z mostu~~ do wiadomości](https://discord.com/channels/"+r.GuildID+"/"+r.ChannelID+"/"+r.MessageID+")",
+				Name:  "Link",
+				Value: "[Skocz ~~z mostu~~ do wiadomości](https://discord.com/channels/" + r.GuildID + "/" + r.ChannelID + "/" + r.MessageID + ")",
 			},
 		},
 		Timestamp: time.Now().Format(time.RFC3339),
 	}
 
-	_, err = s.ChannelMessageSendEmbed(hchannelID, embed)
-	if err != nil {
-		fmt.Println(err)
-		return
+	for _, c := range channels {
+		if c.Type != discordgo.ChannelTypeGuildText {
+			continue
+		}
+
+		if c.Name == "h-board" {
+			_, _ = s.ChannelMessageSendEmbed(c.ID, embed)
+		}
 	}
+
 	return
 }
